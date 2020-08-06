@@ -11,6 +11,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Todo List'),
+        actions: <Widget>[DropDownWidget()],
       ),
       body: Container(
         child: TaskListWidget(),
@@ -29,13 +30,43 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+class DropDownWidget extends StatefulWidget {
+  @override
+  _DropDownWidgetState createState() => _DropDownWidgetState();
+}
+
+class _DropDownWidgetState extends State<DropDownWidget> {
+  final dropDownItems = <String>['All', 'done', 'undone'];
+  var selectedValue = 'All';
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton(
+      value: selectedValue,
+      items: dropDownItems
+          .map((item) => DropdownMenuItem(
+                child: Text(item),
+                value: item,
+              ))
+          .toList(),
+      onChanged: (String value) {
+        setState(() {
+          selectedValue = value;
+          Provider.of<TaskProvider>(context, listen: false).updateFilter(value);
+        });
+      },
+    );
+  }
+}
+
 class TaskListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
         return ListView(
-          children: taskProvider.allTasks().map((t) => TaskItem(t)).toList(),
+          children:
+              taskProvider.filteredTasks().map((t) => TaskItem(t)).toList(),
         );
       },
     );
